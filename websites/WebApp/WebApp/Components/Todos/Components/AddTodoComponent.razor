@@ -1,0 +1,162 @@
+﻿@using Core.Labels.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+@using Core.Todos.Models
+@using MediatR
+@using System.Security.Claims
+@using WebApp.Components.Todos.Components.Menus
+@using WebApp.Components.Todos.Components.Popovers
+
+<MudPaper Elevation="0">
+    <MudPaper Class="mb-0 px-5 py-3" Elevation="0" Style="@($"color:{Colors.Gray.Darken2}; background:{Colors.Gray.Lighten3};")">
+        <MudTextField Placeholder="What needs to be done?"
+                      Immediate="true"
+                      Underline="false"
+                      Variant="Variant.Text"
+                      @ref="titleElem"
+                      @onkeypress="OnKeypress"
+                      @bind-Value="input.Title" />
+    </MudPaper>
+    @*
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" DropShadow="false" Disabled="@(string.IsNullOrEmpty(input.Title))" OnClick="CreateTodo">Create</MudButton>
+    <MudDivider />
+    <MudToolBar Class="gap-1 mud-width-full">
+    <MudStack Row Class="mud-width-full">
+    <FolderSelectMenu Folder="selectedFolder" Folders="Folders" OnSelect="OnSelectFolder" />
+    <MudSpacer></MudSpacer>
+    <div class="d-flex align-center">
+    @if (input.DueDate is not null)
+    {
+    <MudButton Variant="Variant.Text" Size="Size.Small">@input.DueDate?.ToString("ddd dd MMM, yyyy")</MudButton>
+    }
+    <MudMenu AriaLabel="DueDate" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.TopCenter">
+    <ActivatorContent>
+    <MudIconButton Icon="@Icons.Material.Filled.EditCalendar" Variant="Variant.Text" Color="Color.Default" Class="rounded-0"></MudIconButton>
+    </ActivatorContent>
+    <ChildContent>
+    <DueDatePopover SelectedDate="input.DueDate" DateChanged="DateChanged" OpenChanged="OpenChanged" />
+    </ChildContent>
+    </MudMenu>
+    </div>
+    <MudToggleIconButton Icon="@Icons.Material.Outlined.Star"
+    ToggledIcon="@Icons.Material.Filled.Star"
+    ToggledColor="Color.Secondary"
+    Variant="Variant.Text"
+    Color="Color.Default"
+    DropShadow="false"
+    Class="rounded-0 ml-auto "
+    @bind-Toggled="input.IsImportant" />
+    <MudMenu AriaLabel="Urgency" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.TopCenter">
+    <ActivatorContent>
+    <MudIconButton Icon="@Icons.Material.Filled.Flag" Variant="Variant.Text" Color="input.Urgency.IconColor()" Class="rounded-0"></MudIconButton>
+    </ActivatorContent>
+    <ChildContent>
+    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+    IconColor="Color.Error"
+    OnClick="@(() => OnClickUrgency(TodoUrgency.Critical))">@TodoUrgency.Critical</MudMenuItem>
+    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+    IconColor="Color.Warning"
+    OnClick="@(() => OnClickUrgency(TodoUrgency.High))">@TodoUrgency.High</MudMenuItem>
+    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+    IconColor="Color.Info"
+    OnClick="@(() => OnClickUrgency(TodoUrgency.Medium))">@TodoUrgency.Medium</MudMenuItem>
+    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+    OnClick="@(() => OnClickUrgency(TodoUrgency.Low))">@TodoUrgency.Low</MudMenuItem>
+    </ChildContent>
+    </MudMenu>
+    </MudStack>
+    </MudToolBar>
+    *@
+    
+</MudPaper>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<CreateTodoInputModel> OnCreate { get; set; }
+
+    [Parameter]
+    public Label? DefaultFolder { get; set; }
+
+    [Parameter]
+    public List<Label> Folders { get; set; } = [];
+
+    private CreateTodoInputModel input = new CreateTodoInputModel();
+
+    private bool isPopoverOpen;
+
+    private MudTextField<string> titleElem = default!;
+
+    private Label? selectedFolder;
+
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (DefaultFolder is not null)
+        {
+            selectedFolder = DefaultFolder;
+        }
+        return base.OnParametersSetAsync();
+    }
+
+    private void DateChanged(DateTime? date)
+    {
+        input.DueDate = date;
+        StateHasChanged();
+    }
+
+    private void OpenChanged(bool open)
+    {
+        isPopoverOpen = open;
+        StateHasChanged();
+    }
+
+    private async Task CreateTodo()
+    {
+        if (string.IsNullOrEmpty(input.Title))
+        {
+            return;
+        }
+
+        await OnCreate.InvokeAsync(input);
+        await titleElem.BlurAsync();
+        input = new CreateTodoInputModel();
+        selectedFolder = null;
+        StateHasChanged();
+    }
+
+    private async Task OnKeypress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await CreateTodo();
+        }
+    }
+
+    private void OnClickUrgency(TodoUrgency urgency)
+    {
+        input.Urgency = urgency;
+        StateHasChanged();
+    }
+
+    private void OnSelectFolder(Label? folder)
+    {
+        if (folder is null)
+        {
+            //input.FolderId = null;
+            selectedFolder = null;
+        }
+        else
+        {
+            //input.FolderId = folder.Id;
+            selectedFolder = folder;
+        }
+        StateHasChanged();
+    }
+}

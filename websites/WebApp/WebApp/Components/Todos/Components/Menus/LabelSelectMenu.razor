@@ -1,0 +1,68 @@
+﻿@using Core.Labels.Entities
+<MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+    <MudMenu @ref="mudMenu" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter">
+        <ActivatorContent>
+            <MudIconButton Icon="@Icons.Material.Filled.Folder" Variant="Variant.Text" Class="rounded-0"></MudIconButton>
+        </ActivatorContent>
+        <ChildContent>
+            <MudList T="Label" 
+                     Style="min-width: 150px; max-height: 200px; overflow-y: auto;"
+                     SelectedValue="selectedFolder" 
+                     Color="@Color.Info" 
+                     SelectionMode="SelectionMode.ToggleSelection" 
+                     SelectedValueChanged="OnSelectFolder">
+                @foreach (var folder in Folders)
+                {
+                    <MudListItem Text="@folder.Title" Value="folder" />
+                }
+            </MudList>
+        </ChildContent>
+    </MudMenu>
+
+    <MudChip T="string" Label="true">
+        @if (selectedFolder is not null)
+        {
+            <span>@selectedFolder?.Title</span>
+        }
+        else
+        {
+            <span>Inbox</span>
+        }
+    </MudChip>
+</MudStack>
+
+@code {
+    [Parameter]
+    public Label? Folder { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<Label?> OnSelect { get; set; }
+
+    [Parameter]
+    public List<Label> Folders { get; set; } = [];
+
+    private MudMenu? mudMenu;
+
+    private Label? selectedFolder;
+
+    private string folderTitle => selectedFolder?.Title ?? "";
+
+    protected override void OnParametersSet()
+    {
+        selectedFolder = Folder;
+        base.OnParametersSet();
+        StateHasChanged();
+    }
+
+    private async Task OnSelectFolder(Label? folder)
+    {
+        selectedFolder = folder;
+        await OnSelect.InvokeAsync(folder);
+        await mudMenu!.CloseMenuAsync();
+    }
+
+    private async Task OpenSelectFolderMenu(EventArgs e)
+    {
+        await mudMenu!.OpenMenuAsync(e);
+    }
+}

@@ -1,0 +1,249 @@
+﻿@using Application.Todos.Commands.Delete
+@using Application.Todos.Commands.UpdateTodoCommand
+@using Core.Extensions
+@using Core.Labels.Entities
+@using Core.Todos.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+@using MediatR
+@using WebApp.Components.Todos.Components.Menus
+@using WebApp.Components.Todos.Components.Popovers
+@rendermode InteractiveServer
+
+@if(Todo != null)
+{
+    <MudStack Justify="Justify.FlexStart" Style="min-height: calc(100vh - 64px); min-width: 450px;" Class="fixed">
+        <MudStack Row Justify="Justify.FlexEnd" Class="py-3 px-3 mud-shadow-1" style="border-bottom: 1px solid #ccc;">
+            <MudCheckBox @bind-Value="@Todo!.IsCompleted"
+                         @bind-Value:after="UpdateTodo"
+                         Color="@Todo!.Urgency!.IconColor()" />
+            <MudSpacer />
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Class="mx-3"
+                           Variant="Variant.Text"
+                           Size="Size.Medium"
+                           DropShadow="false"
+                           OnClick="OnCickClosePanel" />
+        </MudStack>
+        
+        <MudToolBar Class="px-5" Gutters="false" Dense>
+            <MudTooltip Text="Important">
+                <MudToggleIconButton Icon="@Icons.Material.Outlined.LabelImportant"
+                                     ToggledIcon="@Icons.Material.Filled.LabelImportant"
+                                     ToggledColor="Color.Secondary"
+                                     Variant="Variant.Text"
+                                     Color="Color.Default"
+                                     DropShadow="false"
+                                     @bind-Toggled:after="UpdateTodo"
+                                     @bind-Toggled="Todo!.IsImportant" />
+                </MudTooltip>
+            <MudMenu AriaLabel="Urgency">
+                <ActivatorContent>
+                    <MudTooltip Text="Urgency">
+                        <MudIconButton Icon="@Icons.Material.Filled.Flag"
+                                       Variant="Variant.Text"
+                                       Color="Todo!.Urgency!.IconColor()"></MudIconButton>
+                    </MudTooltip>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+                                 IconColor="Color.Error"
+                                 OnClick="@(() => OnClickUrgency(TodoUrgency.Urgent))">
+                        @TodoUrgency.Urgent
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+                                 IconColor="Color.Warning"
+                                 OnClick="@(() => OnClickUrgency(TodoUrgency.High))">
+                        @TodoUrgency.High
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+                                 IconColor="Color.Info"
+                                 OnClick="@(() => OnClickUrgency(TodoUrgency.Medium))">
+                        @TodoUrgency.Medium
+                    </MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Flag"
+                                 OnClick="@(() => OnClickUrgency(TodoUrgency.Low))">
+                        @TodoUrgency.Low
+                    </MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </MudToolBar>
+        <MudPaper Class="mx-5 px-5 py-3" Elevation="0" Style="@($"color:{Colors.Gray.Darken2}; background:{Colors.Gray.Lighten3};")">
+            <MudTextField Placeholder="What needs to be done?"
+                          Underline="false"
+                          Variant="Variant.Text"
+                          DebounceInterval="1000"
+                          AutoGrow
+                          FullWidth
+                          @bind-Value="Todo!.Title"
+                          @bind-Value:after="UpdateTodo" />
+        </MudPaper>
+
+        <MudPaper Class="mx-5 px-5 py-3" Elevation="0" Style="@($"color:{Colors.Gray.Darken2}; background:{Colors.Gray.Lighten3};")">
+            <MudTextField @bind-Value="Todo!.Description"
+                          @bind-Value:after="UpdateTodo"
+                          AutoGrow 
+                          Placeholder="Notes"
+                          Lines="3"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Notes"
+                          Immediate
+                          Variant="Variant.Text" 
+                          Underline="false" />
+        </MudPaper>
+
+        <MudPaper Class="mx-5 pl-5 py-3" Elevation="0" Style="@($"color:{Colors.Gray.Darken2}; background:{Colors.Gray.Lighten3};")">
+            <DueDatePopover SelectedDate="Todo!.DueDate" DateChanged="DateChanged" OpenChanged="OpenChanged" />
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="mx-5 rounded-1" Square="false">
+            <MudSelect Value="Todo!.Label"
+                       T="Label"
+                       ValueChanged="OnSelectFolder"
+                       ToStringFunc="folder => folder.Title"
+                       Underline="false"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Folder"
+                       AnchorOrigin="Origin.BottomCenter"
+                       TransformOrigin="Origin.TopCenter"
+                       InputClass="pa-2"
+                       Placeholder="Inbox"
+                       Style="@($"color:{Colors.Gray.Darken2}; background:{Colors.Gray.Lighten3};")"
+                       Variant="Variant.Text"
+                       Disabled="@(!(Labels.Count > 0))"
+                       Clearable="true">
+                @foreach (var label in Labels)
+                {
+                    <MudSelectItem Value="label" />
+                }
+            </MudSelect>
+        </MudPaper>
+
+        <MudStack Row Justify="Justify.SpaceBetween" Class="mt-3 px-5">
+            <MudButton Variant="Variant.Text" Size="Size.Small" Disabled>Created @Todo!.CreatedAt.ToString("ddd, MMMM dd")</MudButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteTodo" />
+        </MudStack>
+    </MudStack>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<Todo> OnDelete { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnEdit { get; set; } = default!;
+
+    [Parameter]
+    public Todo? Todo { get; set; } = null;
+
+    [Parameter]
+    public List<Label> Labels { get; set; } = [];
+
+    [Parameter]
+    public Label? DefaultFolder { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; } = default!;
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    private bool isUpdated;
+
+    private bool isPopoverOpen;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        StateHasChanged();
+    }
+
+    private async Task UpdateTodo()
+    {
+        if (Todo is null)
+        {
+            return;
+        }
+
+        var command = new UpdateTodoCommand(Todo, Todo!.ApplicationUserId);
+        var result = await Mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            isUpdated = true;
+        }
+        else
+        {
+            isUpdated = false;
+        }
+
+        await OnEdit.InvokeAsync();
+        StateHasChanged();
+    }
+
+    private async Task DeleteTodo()
+    {
+        if (Todo is null)
+        {
+            return;
+        }
+
+        var command = new DeleteTodoCommand(Todo!.Id, Todo!.ApplicationUserId);
+        var result = await Mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            Todo = null;
+            await OnDelete.InvokeAsync();
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task DateChanged(DateTime? date)
+    {
+        if (Todo!.DueDate == date)
+        {
+            return;
+        }
+
+        Todo!.DueDate = date;
+        await UpdateTodo();
+        StateHasChanged();
+    }
+
+    private void OpenChanged(bool open)
+    {
+        isPopoverOpen = open;
+        StateHasChanged();
+    }
+
+    private async Task OnClickUrgency(TodoUrgency urgency)
+    {
+        Todo!.Urgency = urgency;
+        await UpdateTodo();
+        StateHasChanged();
+    }
+
+    private void OnCickClosePanel()
+    {
+        Todo = null;
+        OnClose.InvokeAsync(isUpdated);
+    }
+
+    private async Task OnSelectFolder(Label? folder)
+    {
+        if (folder is null)
+        {
+            Todo!.LabelId = null;
+            Todo.Label = null;
+        }
+        else
+        {
+            Todo!.LabelId = folder!.Id;
+            Todo.Label = folder;
+        }
+        await UpdateTodo();
+        StateHasChanged();
+    }
+}

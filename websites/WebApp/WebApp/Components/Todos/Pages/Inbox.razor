@@ -1,0 +1,154 @@
+﻿@page "/a/todos/inbox"
+@layout TodoAppLayout
+@attribute [Authorize]
+@using Application.Todos.Commands.Create
+@using Application.Todos.Commands.UpdateTodoCommand
+@using Application.Todos.Queries.GetInboxTodos
+@using Core.Todos.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+@using Core.Todos.Models
+@using Humanizer
+@using MediatR
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Core.Extensions
+@using WebApp.States
+@rendermode InteractiveAuto
+
+<TodoApp 
+         Todos="todos"
+         OnDelete="OnDeleteTodo"
+         OnEdit="OnEditTodo"
+         OnCreate="OnCreateTodo"
+         ApplicationUserId="@applicationUserId" />
+
+@code {
+    [Inject]
+    public IMediator Mediator { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
+    [Inject]
+    public IDialogService DialogService { get; set; }
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; }
+
+    [Inject]
+    public ITodoAppState? TodoAppState { get; set; }
+
+    // Private fields
+    private List<Todo> todos = new List<Todo>();
+
+    private string applicationUserId = string.Empty;
+
+    private const string PageTitle = "Inbox";
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+            if (user is not null)
+            {
+                applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                await LoadTodos();
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnCreateTodo(CreateTodoInputModel input)
+    {
+        try
+        {
+            var command = new CreateTodoCommand(input, applicationUserId);
+            var result = await Mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                Snackbar.Add("Todo created", Severity.Success);
+                TodoAppState.UpdateState();
+                await LoadTodos();
+            }
+            else
+            {
+                Snackbar.Add("An error occurred", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task LoadTodos()
+    {
+        try
+        {
+            var query = new GetInboxTodosQuery(applicationUserId);
+            var result = await Mediator.Send(query);
+            if (result.IsSuccess)
+            {
+                todos = result.Value.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnToggleTodoComplete(bool value, Todo todo)
+    {
+        try
+        {
+            todo.IsCompleted = value;
+
+            var command = new UpdateTodoCommand(todo, applicationUserId);
+
+            var result = await Mediator.Send(command);
+
+            if (result.IsSuccess)
+            {
+                await LoadTodos();
+
+                if (todo.IsCompleted)
+                {
+                    Snackbar.Add("Todo completed", Severity.Success);
+                }
+            }
+            else
+            {
+                Snackbar.Add("An error occurred", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteTodo()
+    {
+        await LoadTodos();
+        TodoAppState.UpdateState();
+        StateHasChanged();
+    }
+
+    private async Task OnEditTodo(Todo todo)
+    {
+        await LoadTodos();
+        TodoAppState.UpdateState();
+        StateHasChanged();
+    }
+}

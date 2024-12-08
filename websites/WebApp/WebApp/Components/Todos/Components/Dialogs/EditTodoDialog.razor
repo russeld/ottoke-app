@@ -1,0 +1,77 @@
+﻿@using Application.Todos.Commands.Create
+@using Core.Labels.Entities
+@using Core.Todos.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+
+<MudDialog DefaultFocus="DefaultFocus.FirstChild">
+    <TitleContent>
+        <h2>Edit Todo</h2>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Elevation="0">
+            <MudStack Spacing="4">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Title</MudText>
+                    <MudTextField @bind-Value="TodoModel.Title"
+                                  Immediate
+                                  Variant="Variant.Outlined"
+                                  Underline="false"></MudTextField>
+                </MudStack>
+
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Description</MudText>
+                    <MudTextField @bind-Value="TodoModel.Description" Variant="Variant.Outlined" />
+                </MudStack>
+
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Urgency</MudText>
+                    <MudChipSet T="TodoUrgency" @bind-SelectedValue="TodoModel.Urgency" CheckMark SelectionMode="SelectionMode.SingleSelection">
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Error" Value="@TodoUrgency.Urgent">@TodoUrgency.Urgent</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Warning" Value="@TodoUrgency.High">@TodoUrgency.High</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Info" Value="@TodoUrgency.Medium">@TodoUrgency.Medium</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Default" Value="@TodoUrgency.Low" Default="true">@TodoUrgency.Low</MudChip>
+                    </MudChipSet>
+                </MudStack>
+
+                <MudStack>
+                    <MudText Typo="Typo.subtitle2">Label</MudText>
+                    <MudAutocomplete T="Label"
+                                     Value="TodoModel.Label"
+                                     ValueChanged="OnLabelChanged"
+                                     ResetValueOnEmptyText="true"
+                                     Variant="Variant.Outlined"
+                                     SearchFunc="@SearchAsync"
+                                     Clearable="true"
+                                     ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
+                                     Underline="false">
+                        <ItemTemplate Context="e">
+                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" onclick="@(() => OnSelectLabel(e))">
+                                <MudText>@($"{e.Title}")</MudText>
+                                @if (e != null && e.Id == 0)
+                                {
+                                    <MudChip T="string" Color="Color.Success" Size="Size.Small">Enter to add</MudChip>
+                                }
+                            </MudStack>
+                        </ItemTemplate>
+                    </MudAutocomplete>
+                </MudStack>
+
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Due Date</MudText>
+                    <MudDatePicker @bind-Date="TodoModel.DueDate"
+                                   Adornment="Adornment.Start"
+                                   Variant="Variant.Outlined"
+                                   Underline="false"></MudDatePicker>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudStack Row="true" Spacing="5" Class="pa-5">
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="OnClickCancel">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickUpdateTodo">Update Todo</MudButton>
+        </MudStack>
+    </DialogActions>
+</MudDialog>
+

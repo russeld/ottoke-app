@@ -1,0 +1,85 @@
+﻿@using Core.Extensions
+@using Core.Todos.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+<MudCard Class="pb-5 your-day-todo" Elevation="0">
+    <MudCardHeader Class="todo-card-header">
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">Todos</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Settings" Class="text-white"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudStack Spacing="5">
+            @foreach (var todo in Todos)
+            {
+                @if (todo.IsCompleted)
+                {
+                    <MudPaper Elevation="0" Class="py-1 px-5 d-flex align-center todo-item-completed">
+                        <MudCheckBox Value="@todo.IsCompleted" Color="Color.Default" />
+                        <h4><s>@todo.Title</s></h4>
+                        <p><s>@todo.Description</s></p>
+                        <div class="ml-auto d-flex align-center">
+                            @if (todo.DueDate != null)
+                            {
+                                <MudChip T="string" Color="Color.Default" Size="Size.Small">
+                                    @todo.DueDate.DueDateToString()
+                                </MudChip>
+                            }
+                            @if (todo.Label != null)
+                            {
+                                <MudChip T="string" Size="Size.Small" Style="@($"color: {Colors.Gray.Lighten5}; background-color: {todo.Label.Color};")">@todo.Label.Title</MudChip>
+                            }
+                            @if (todo.IsImportant)
+                            {
+                                <MudIcon Icon="@Icons.Material.Outlined.LabelImportant" Class="rounded-0" Color="Color.Default" />
+                            }
+                            @if (todo.Urgency != TodoUrgency.Low)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Flag" Class="rounded-0" Color="Color.Default" />
+                            }
+                        </div>
+                    </MudPaper>
+                }
+                else
+                {
+                    <MudPaper Elevation="25" Class="py-1 px-5 d-flex align-center">
+                        <MudCheckBox Value="@todo.IsCompleted" Color="Color.Default" />
+                        <h4>@todo.Title</h4>
+                        <p>@todo.Description</p>
+                        <div class="ml-auto d-flex align-center">
+                            @if (todo.DueDate != null)
+                            {
+                                <MudChip T="string" Color="Color.Info" Size="Size.Small">
+                                    @todo.DueDate.DueDateToString()
+                                </MudChip>
+                            }
+                            @if (todo.Label != null)
+                            {
+                                <MudChip T="string" Size="Size.Small" Style="@($"color: {Colors.Gray.Lighten5}; background-color: {todo.Label.Color};")">@todo.Label.Title</MudChip>
+                            }
+                            @if (todo.IsImportant)
+                            {
+                                <MudIcon Icon="@Icons.Material.Outlined.LabelImportant" Class="rounded-0" Color="@todo.IconImportanceColor()" />
+                            }
+                            @if (todo.Urgency != TodoUrgency.Low)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Flag" Class="rounded-0" Color="@todo.Urgency.IconColor()" />
+                            }
+                        </div>
+                    </MudPaper>
+                }
+            }
+
+            @if (Todos.Count == 0)
+            {
+                <MudStack Elevation="0" Class="py-2 px-5 d-flex align-center">
+                    <MudText Typo="Typo.h6">No Todos for today</MudText>
+                    <MudText>Review your inbox and plan your day</MudText>
+                </MudStack>
+            }
+        </MudStack>
+    </MudCardContent>
+</MudCard>

@@ -1,0 +1,45 @@
+﻿@page "/a/todos"
+@using WebApp.Components.Todos.Components.Papers
+
+<MudStack Class="mx-10 mt-5 " Spacing="2">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-5">
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <h1><strong>Todos</strong></h1>
+            <div>
+                <MudIconButton Class="pa-2" Size="Size.Small" Color="Color.Default" Variant="Variant.Text" Icon="@Icons.Material.Filled.Settings"></MudIconButton>
+            </div>
+        </MudStack>
+        <div>
+            <MudIconButton Class="px-2" Color="Color.Primary" Variant="Variant.Filled" Icon="@Icons.Material.Filled.Add" OnClick="OnClickCreateTodo"></MudIconButton>
+        </div>
+    </MudStack>
+
+    @if (TodoAppState!.Todos.Count == 0)
+    {
+        <MudStack Row="false" AlignItems="AlignItems.Center" Justify="Justify.Center">
+            <MudText Typo="Typo.h5" Color="Color.Default">Nothing to do! You're all caught up.</MudText>
+            <MudImage Height="200" Src="assets/images/up_to_date_re_nqid.svg" Alt="Up to date" Elevation="0" Class="rounded-lg" />
+        </MudStack>
+    }
+    else
+    {
+        <MudExpansionPanels Outlined="false" Elevation="0" MultiExpansion="true">
+            <MudExpansionPanel Expanded="true">
+                <TitleContent>
+                    <MudStack Row="true">
+                        <MudText>Inbox</MudText>
+                        <MudText Style="@($"color:{Colors.Gray.Lighten1};")">(@TodoAppState!.Todos.Count)</MudText>
+                    </MudStack>
+                </TitleContent>
+                <ChildContent>
+                    <MudStack Spacing="2">
+                        @foreach (var todo in TodoAppState!.Todos)
+                        {
+                            <TodoItemPaper Todo="@todo" ApplicationUserId="@applicationUserId" OnEdit="OnEditTodo" OnDelete="OnDeleteTodo" />
+                        }
+                    </MudStack>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    }
+</MudStack>

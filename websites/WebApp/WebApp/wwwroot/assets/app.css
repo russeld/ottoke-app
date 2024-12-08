@@ -1,0 +1,22 @@
+﻿body {
+    background-color: whitesmoke;
+}
+
+.sidebar-chip-badge {
+    color: #1C252E;
+    padding: 0px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    align-content: center;
+}
+
+.todo-item-completed {
+    text-decoration: line-through;
+    color: #6c757d;
+    background-color: #f5f5f5;
+}
+
+
+
+

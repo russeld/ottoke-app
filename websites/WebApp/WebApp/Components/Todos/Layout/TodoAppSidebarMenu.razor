@@ -1,0 +1,40 @@
+﻿@using System.Security.Claims
+<MudDrawer @bind-Open="@isSideMenuOpen"
+           Width="150px" 
+           Anchor="Anchor.Start" 
+           Elevation="1" 
+           Variant="@DrawerVariant.Persistent" 
+           Breakpoint="Breakpoint.SmAndUp">
+    <TodoSidebarMenu ApplicationUserId="@ApplicationUserId" />
+</MudDrawer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
+    private bool isSideMenuOpen = true;
+
+    private string ApplicationUserId = string.Empty;
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+            if (user is not null)
+            {
+                ApplicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private bool _drawerOpen = true;
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

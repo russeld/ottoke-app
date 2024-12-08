@@ -1,0 +1,99 @@
+﻿@using Application.Labels.Queries.GetLabels
+@using Core.Labels.Entities
+@using MediatR
+@using Core.Todos.Entities
+@using System.Security.Claims
+@using WebApp.Components.Todos.Components.Dialogs
+@using WebApp.States
+@rendermode InteractiveServer
+@implements IDisposable
+@inject NavigationManager NavigationManager
+
+@if (labels.Any())
+{
+    @foreach (var label in labels)
+    {
+        <MudNavLink Href="@($"a/todos/l/{label.Id}")" Icon="@Icons.Material.Filled.Label">
+            <div class="d-flex align-content-center justify-between">
+                <div class="flex-1">@label.Title</div>
+                @if (label.Todos.Count > 0)
+                {
+                    <div class="sidebar-chip-badge">@label.Todos.Count</div>
+                }
+            </div>
+        </MudNavLink>
+    }
+}
+<MudNavLink Icon="@Icons.Material.Filled.NewLabel" OnClick="OnClickNewLabel" Class="mt-2">New Label</MudNavLink>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    [Inject]
+    public IDialogService DialogService { get; set; } = default!;
+
+    [Inject]
+    public TodoAppState TodoAppState { get; set; } = default!;
+
+    private List<Label> labels = [];
+
+    private string applicationUserId = string.Empty;
+
+    private string labelTitle = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+            if (user is not null)
+            {
+                applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            }
+
+            await GetLabels();
+        }
+
+        TodoAppState.OnChange += OnTodoAppStateStateChanged;
+        await base.OnInitializedAsync();
+    }
+
+    private async Task GetLabels()
+    {
+        var response = await Mediator.Send(new GetLabelsQuery(applicationUserId));
+        if (response is not null)
+        {
+            labels = response.Value;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnClickNewLabel()
+    {
+        var parameters = new DialogParameters
+        {
+            { "ApplicationUserId", applicationUserId }
+        };
+
+        var dialog = DialogService.Show<CreateLabelDialog>("New label", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            await GetLabels();
+        }
+    }
+
+    private void OnTodoAppStateStateChanged() => GetLabels();
+
+    public void Dispose()
+    {
+        TodoAppState.OnChange -= OnTodoAppStateStateChanged;
+    }
+}

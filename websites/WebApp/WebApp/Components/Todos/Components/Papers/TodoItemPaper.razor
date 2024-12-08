@@ -1,0 +1,44 @@
+﻿@using Core.Extensions
+@using Core.Todos.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+@using Humanizer
+
+@if (Todo != null)
+{
+    <MudPaper Elevation="0" Outlined Class="todo-paper-item pa-1">
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudCheckBox T="bool" ValueChanged="@((val) => ToggleComplete(val))" Size="Size.Small" Value="@Todo.IsCompleted" Color="Color.Primary" CheckedIcon="@Icons.Material.Filled.Check" />
+                <MudStack Spacing="0">
+                    <MudText>@Todo.Title</MudText>
+                    @if (!string.IsNullOrEmpty(Todo.Description) && Todo.IsCompleted)
+                    {
+                        <small><s style="@($"color:{Colors.Gray.Lighten2};")">@Todo.Description</s></small>
+                    }
+                    else if (!string.IsNullOrEmpty(Todo.Description) && !Todo.IsCompleted)
+                    {
+                        <MudText Typo="Typo.caption" style="@($"color:{Colors.Gray.Lighten1};")">@Todo.Description</MudText>
+                    }
+                </MudStack>
+            </MudStack>
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                @if (Todo.Label != null)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@Todo.Label.Title</MudChip>
+                }
+                @if (Todo.DueDate != null)
+                {
+                    <MudChip T="string" Icon="bx bx-calendar" Color="Color.Info" Size="Size.Small" Variant="Variant.Text">
+                        @Todo.DueDate.DueDateToString()
+                    </MudChip>
+                }
+                <MudChip T="string" Size="Size.Small" Color="@Todo.Urgency.IconColor()" Icon="@Icons.Material.Outlined.Flag" Variant="Variant.Text">@Todo.Urgency.Humanize()</MudChip>
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open todo menu">
+                    <MudMenuItem OnClick="OnClickEdit">Edit</MudMenuItem>
+                    <MudMenuItem OnClick="OnClickDelete">Delete</MudMenuItem>
+                </MudMenu>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+}

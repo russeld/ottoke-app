@@ -1,0 +1,118 @@
+﻿@page "/a/todos/important"
+@layout TodoAppLayout
+@using Application.Todos.Commands.Create
+@using Application.Todos.Commands.UpdateTodoCommand
+@using Application.Todos.Queries.GetImportantTodos
+@using Application.Todos.Queries.GetInboxTodos
+@using Core.Todos.Entities
+@using Core.Todos.Enums
+@using Core.Todos.Extensions
+@using Core.Todos.Models
+@using Humanizer
+@using MediatR
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Core.Extensions
+@rendermode InteractiveAuto
+@attribute [Authorize]
+
+
+@*
+<TodoApp PageTitle="@PageTitle" 
+         Todos="todos" 
+         OnDelete="OnDeleteTodo" 
+         OnEdit="OnEditTodo" 
+         ApplicationUserId="@applicationUserId" />
+*@
+
+@code {
+    [Inject]
+    public IMediator Mediator { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; }
+
+    // Private fields
+    private List<Todo> todos = new List<Todo>();
+
+    private Todo? selectedTodo = null;
+
+    private string applicationUserId = string.Empty;
+
+    private const string PageTitle = "Important";
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+            if (user is not null)
+            {
+                applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                await LoadTodos();
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnCreateTodo(CreateTodoInputModel input)
+    {
+        try
+        {
+            input.IsImportant = true;
+            var command = new CreateTodoCommand(input, applicationUserId);
+            var result = await Mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                await LoadTodos();
+                Snackbar.Add("Todo created", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task LoadTodos()
+    {
+        try
+        {
+            var query = new GetImportantTodosQuery(applicationUserId);
+            var result = await Mediator.Send(query);
+            if (result.IsSuccess)
+            {
+                todos = result.Value.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteTodo()
+    {
+        selectedTodo = null;
+        await LoadTodos();
+    }
+
+    private async Task OnEditTodo()
+    {
+        selectedTodo = null;
+        await LoadTodos();
+    }
+}

@@ -1,0 +1,158 @@
+﻿@rendermode InteractiveServer
+<MudDatePicker @ref="_picker" 
+               ShowToolbar="false" 
+               Date="_date" 
+               DateChanged="OnDateSelectChanged"
+               Adornment="Adornment.Start" 
+               AnchorOrigin="Origin.CenterCenter" 
+               TransformOrigin="Origin.TopCenter" 
+               Underline="false">
+    <PickerActions>
+        <MudMenu @ref="mudMenu" Class="justify-space-between" Dense Icon="@Icons.Material.Filled.Settings">
+            <ActivatorContent>
+                <MudIconButton Icon="@GetSelectedDueDateIcon(_date)"
+                               Variant="Variant.Filled"
+                               DropShadow="false"
+                               Class="rounded-0"></MudIconButton>
+            </ActivatorContent>
+            <ChildContent>
+                <MudList T="string">
+                    <MudListItem Text="Today" Icon="@Icons.Material.Filled.WbSunny" OnClick="OnClickToday" />
+                    <MudListItem Text="Tomorrow" Icon="@Icons.Material.Filled.CalendarToday" OnClick="OnClickTomorrow" />
+                    <MudListItem Text="Next Week" OnClick="OnClickNextWeek" Icon="bx bx-calendar-week" />
+                    <MudListItem Text="Next Month" OnClick="OnClickNextMonth" Icon="bx bx-calendar-event" />
+                </MudList>
+            </ChildContent>
+        </MudMenu>
+        <MudButton Variant="Variant.Text" OnClick="OnClickClearDate" Class="flex-grow-1">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" DropShadow="false" Color="Color.Primary" OnClick="OnClickOk" Class="flex-grow-1">Set</MudButton>
+    </PickerActions>
+</MudDatePicker>
+
+@code {
+    [Parameter]
+    public DateTime? SelectedDate { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> DateChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    private MudDatePicker _picker = default!;
+
+    private DateTime? _date = DateTime.Today;
+
+    private MudMenu? mudMenu;
+
+    protected override void OnParametersSet()
+    {
+        _date = SelectedDate;
+        base.OnParametersSet();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+    private void OnDateSelectChanged(DateTime? date)
+    {
+        _date = date;
+        _picker.GoToDate();
+        mudMenu?.CloseMenuAsync();
+        DateChanged.InvokeAsync(_date);
+    }
+
+    private async Task OnClickToday()
+    {
+        _date = DateTime.Today;
+        await _picker.GoToDate(_date.Value);
+        await DateChanged.InvokeAsync(_date);
+    }
+
+    private void OnClickTomorrow()
+    {
+        _date = DateTime.Today.AddDays(1);
+        _picker.GoToDate(_date.Value);
+        mudMenu.CloseMenuAsync();
+        DateChanged.InvokeAsync(_date);
+    }
+
+    private void OnClickNextWeek()
+    {
+        _date = DateTime.Today.AddDays(7);
+        _picker.GoToDate(_date.Value);
+        mudMenu.CloseMenuAsync();
+        DateChanged.InvokeAsync(_date);
+    }
+
+    private void OnClickNextMonth()
+    {
+        _date = DateTime.Today.AddMonths(1);
+        _picker.GoToDate(_date.Value);
+        mudMenu.CloseMenuAsync();
+        DateChanged.InvokeAsync(_date);
+    }
+
+    private void OnClickClearDate()
+    {
+        _date = null;
+        mudMenu.CloseMenuAsync();
+        DateChanged.InvokeAsync(_date);
+        _picker.CloseAsync();
+    }
+
+    private async Task OnClickOk()
+    {
+        await mudMenu.CloseMenuAsync();
+        await _picker.CloseAsync();
+    }
+
+    private Color GetSelectedDueDateColor(DueDateType dueDateType)
+    {
+        return SelectedDate.HasValue && SelectedDate.Value.Date == GetDueDate(dueDateType).Date ? Color.Primary : Color.Default;
+    }
+
+    private DateTime GetDueDate(DueDateType dueDateType)
+    {
+        return dueDateType switch
+        {
+            DueDateType.Today => DateTime.Today,
+            DueDateType.Tomorrow => DateTime.Today.AddDays(1),
+            DueDateType.NextWeek => DateTime.Today.AddDays(7),
+            DueDateType.NextMonth => DateTime.Today.AddMonths(1),
+            _ => DateTime.Today
+        };
+    }
+
+    private string GetSelectedDueDateIcon(DateTime? dueDate)
+    {
+        if(dueDate == DateTime.Today)
+        {
+            return Icons.Material.Filled.WbSunny;
+        }
+        else if(dueDate == DateTime.Today.AddDays(1))
+        {
+            return Icons.Material.Filled.CalendarToday;
+        }
+        else if(dueDate == DateTime.Today.AddDays(7))
+        {
+            return "bx bx-calendar-week";
+        }
+        else if(dueDate == DateTime.Today.AddMonths(1))
+        {
+            return "bx bx-calendar-event";
+        }
+
+        return Icons.Material.Filled.EditCalendar;
+    }
+
+    enum DueDateType
+    {
+        Today,
+        Tomorrow,
+        NextWeek,
+        NextMonth
+    }
+}

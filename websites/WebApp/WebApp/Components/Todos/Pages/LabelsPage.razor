@@ -1,0 +1,188 @@
+﻿@page "/a/todos/l/{id:int}"
+@layout TodoAppLayout
+@attribute [Authorize]
+@using Application.Labels.Queries.GetLabelTodos
+@using Application.Todos.Commands.Create
+@using Application.Todos.Commands.Delete
+@using Core.Todos.Models
+@using Microsoft.AspNetCore.Authorization
+@using Core.Todos.Entities
+@using Core.Labels.Entities
+@using MediatR
+@using System.Security.Claims
+@using WebApp.Components.Todos.Components.Dialogs
+@using WebApp.States
+@rendermode InteractiveAuto
+
+@*
+<TodoApp PageTitle="@pageTitle"
+         Todos="todos"
+         OnCreate="OnCreateTodo"
+         OnDelete="OnDeleteTodo"
+         OnEdit="OnEditTodo" 
+         DefaultFolder="folder"
+         ApplicationUserId="@applicationUserId">
+
+    <EditMenuContent>
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomCenter" Class="rounded-0 ml-5" AriaLabel="Folder menu settings">
+            <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="OnClickEditFolder">Edit</MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.Delete" OnClick="OnClickDeleteFolder">Delete</MudMenuItem>
+        </MudMenu>
+    </EditMenuContent>
+</TodoApp>
+
+*@
+
+@code {
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
+    [Inject]
+    public IDialogService DialogService { get; set; } = default!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = default!;
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
+    public TodoAppState TodoAppState { get; set; } = default!;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string applicationUserId = string.Empty;
+
+    private List<Todo> todos = [];
+
+    private string pageTitle
+    {
+        get
+        {
+            return folder is not null ? folder!.Title : string.Empty;
+        }
+    }
+
+    private Label? folder = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+            if (user is not null)
+            {
+                applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                await GetFolderDetails();
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnCreateTodo(CreateTodoInputModel input)
+    {
+        //input.FolderId = Id;
+        var command = new CreateTodoCommand(input, applicationUserId);
+        var result = await Mediator.Send(command);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Todo created", Severity.Success);
+            TodoAppState.UpdateState();
+            await LoadTodos();
+        }
+        else
+        {
+            Snackbar.Add("An error occurred", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GetFolderDetails()
+    {
+        var result = await Mediator.Send(new GetLabelTodosQuery(Id, applicationUserId));
+
+        if (result.IsSuccess)
+        {
+            folder = result.Value;
+            todos = folder.Todos;
+        }
+        else
+        {
+            Snackbar.Add(result.Errors.First(), Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task LoadTodos()
+    {
+        try
+        {
+            var result = await Mediator.Send(new GetLabelTodosQuery(Id, applicationUserId));
+
+            if (result.IsSuccess)
+            {
+                folder = result.Value;
+                todos = folder.Todos;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteTodo()
+    {
+        TodoAppState.UpdateState();
+        await LoadTodos();
+    }
+
+    private async Task OnEditTodo(Todo todo)
+    {
+        TodoAppState.UpdateState();
+        await LoadTodos();
+    }
+
+    private async Task OnClickEditFolder()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Folder", folder);
+        parameters.Add("ApplicationUserId", applicationUserId);
+
+        var dialog = DialogService.Show<EditLabelDialog>("Edit label", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            await GetFolderDetails();
+        }
+    }
+
+    private async Task OnClickDeleteFolder()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("FolderId", Id);
+        parameters.Add("ApplicationUserId", applicationUserId);
+
+        var dialog = DialogService.Show<DeleteLabelDialog>("Delete label", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            Snackbar.Add("Folder deleted", Severity.Success);
+            NavigationManager.NavigateTo("/a/todos/inbox", true);
+        }
+    }
+}

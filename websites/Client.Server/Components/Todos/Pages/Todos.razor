@@ -1,0 +1,351 @@
+﻿@page "/todos"
+@page "/todos/{Filter}"
+@layout Client.Server.Components.Layout.MainLayout
+@using Application.Todos.Commands.CompleteTodo
+@using Application.Todos.Commands.Create
+@using Application.Todos.Commands.NotCompleteTodo
+@using Application.Todos.Queries.GetInboxTodos
+@using Client.Server.Components.Todos.Panels
+@using Core.Todos.Entities
+@using Core.Todos.Models
+@using MediatR;
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Core.Extensions;
+@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@using Microsoft.FluentUI.AspNetCore.Components;
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>@PageTitle</PageTitle>
+
+<FluentGrid>
+    <FluentGridItem sm="2">
+        <FluentStack Style="height:100%">
+            <FluentNavMenu @bind-Expanded="@expanded" >
+                <FluentNavLink Icon="@(new Icons.Regular.Size20.MailInbox())" Href="/todos/inbox" Match="NavLinkMatch.All">Inbox</FluentNavLink>
+                <FluentNavLink Icon="@(new Icons.Regular.Size20.CheckboxChecked())" Href="/todos/completed" Match="NavLinkMatch.All">Completed</FluentNavLink>
+                <FluentNavLink Icon="@(new Icons.Regular.Size20.Delete())" Href="/todos/trash" Match="NavLinkMatch.All">Trash</FluentNavLink>
+                <FluentNavGroup Title="Lists" OnClick="OnClick" Icon="@(new Icons.Regular.Size20.List())">
+                    <ChildContent>
+                        <FluentNavLink Icon="@(new Icons.Regular.Size20.AddCircle())" OnClick="OnClick" Match="NavLinkMatch.All">Add list</FluentNavLink>
+                        <FluentNavLink OnClick="OnClick" Icon="@(new Icons.Regular.Size20.LeafOne())">Item 3.1</FluentNavLink>
+                        <FluentNavLink OnClick="OnClick" Icon="@(new Icons.Regular.Size20.LeafTwo())">Item 3.2</FluentNavLink>
+                    </ChildContent>
+                </FluentNavGroup>
+                <FluentNavGroup Title="Labels" OnClick="OnClick" Icon="@(new Icons.Regular.Size20.Tag())">
+                    <ChildContent>
+                        <FluentNavLink Icon="@(new Icons.Regular.Size20.AddCircle())" OnClick="OnClick" Match="NavLinkMatch.All">Add label</FluentNavLink>
+                        <FluentNavLink OnClick="OnClick" Icon="@(new Icons.Regular.Size20.LeafOne())">Item 3.1</FluentNavLink>
+                        <FluentNavLink OnClick="OnClick" Icon="@(new Icons.Regular.Size20.LeafTwo())">Item 3.2</FluentNavLink>
+                    </ChildContent>
+                </FluentNavGroup>
+                <FluentNavLink Icon="@(new Icons.Regular.Size20.Settings())" Href="/todos/settings" Match="NavLinkMatch.All">Management</FluentNavLink>
+            </FluentNavMenu>
+        </FluentStack>
+    </FluentGridItem>
+
+    <FluentGridItem xs="10">
+        <FluentToolbar>
+            <h3>@PageTitle</h3>
+        </FluentToolbar>
+        <FluentGrid>
+            <FluentGridItem xs="12">
+                <div class="card">
+                    <FluentTextField Value=@title 
+                                    Appearance="FluentInputAppearance.Filled" 
+                                    ValueChanged="OnChange" 
+                                    Placeholder="Add todo"
+                                    Immediate="true"
+                                    @onkeypress="OnPressEnter"
+                                    style="width: 100%; margin-bottom: 5px;">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Add())" Slot="start" Color="Color.Neutral" />
+                    </FluentTextField>
+                    <FluentToolbar Orientation="Orientation.Horizontal" Style="width: 100%;">
+                        <FluentButton Id="btnDueDate"
+                                    IconStart="@(new Icons.Regular.Size16.Calendar())"
+                                    Title="Due date"
+                                    Appearance="Appearance.Lightweight"
+                                    @onclick="@(() => open = !open)">
+                                @if (dueDate is not null)
+                                {
+                                <span>@dueDate!.MenuSelectDisplay()</span>
+                                }
+                        </FluentButton>
+                        <FluentMenu Anchor="btnDueDate" @bind-Open="open" VerticalThreshold="170">
+                            <h6 style="text-align: center; margin: .5rem 0;">Due</h6>
+                            <FluentDivider />
+                            <FluentMenuItem OnClick="SelectDueDateToday" >
+                                Today
+                                <span slot="start" style="display: flex; align-items: center;"><FluentIcon Value="@(new Icons.Regular.Size16.CalendarToday())" Color="Color.Neutral" Slot="start" /></span>
+                            </FluentMenuItem>
+                            <FluentMenuItem OnClick="SelectDueDateTomorrow">
+                                <span slot="start" style="display: flex; align-items: center;"><FluentIcon Value="@(new Icons.Regular.Size16.CalendarAdd())" Color="Color.Neutral" Slot="start" /></span>
+                                Tomorrow
+                            </FluentMenuItem>
+                            <FluentMenuItem OnClick="SelectDueDateNextWeek">
+                                <span slot="start" style="display: flex; align-items: center;"><FluentIcon Value="@(new Icons.Regular.Size16.CalendarWorkWeek())" Color="Color.Neutral" Slot="start" /></span>
+                                Next week
+                            </FluentMenuItem>
+                            <FluentMenuItem id="btnCustomDueDate" OnClick="@((e) => dueDatePickerOpen = !dueDatePickerOpen)">
+                                <span slot="start" style="display: flex; align-items: center;"><FluentIcon Value="@(new Icons.Regular.Size16.CalendarSearch())" Color="Color.Neutral" Slot="start" /></span>
+                                Pick a date
+                            </FluentMenuItem>
+                            @if (dueDate is not null)
+                            {
+                                <FluentDivider />
+                                <FluentMenuItem OnClick="@(() => dueDate = null)">
+                                    <span slot="start" style="display: flex; align-items: center;">
+                                        <FluentIcon Value="@(new Icons.Regular.Size16.CalendarCancel())" Color="Color.Warning" Slot="start" />
+                                    </span>
+                                    Clear
+                                </FluentMenuItem>
+                            }
+                        </FluentMenu>
+                        <FluentPopover VerticalThreshold="170" AnchorId="btnDueDate" @bind-Open="dueDatePickerOpen">
+                            <Body>
+                                <FluentCalendar Value="@dueDate" ValueChanged="OnDueDateSelected" DisabledDateFunc="@((DateTime date) => date < DateTime.UtcNow.AddDays(-1))" />
+                            </Body>
+                        </FluentPopover>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.Star())" Appearance="Appearance.Lightweight" Title="Important"/>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.Flag())" Appearance="Appearance.Lightweight" Title="Urgency" />
+                        <FluentSpacer />
+                        <FluentButton Title="Add" Disabled="string.IsNullOrEmpty(title)" OnClick="SaveNewTodo">Add</FluentButton>
+                    </FluentToolbar>
+                </div>
+            </FluentGridItem>
+            <FluentGridItem xs="12">
+                <FluentDataGrid Items="@todos">
+                    <TemplateColumn Align="@Align.Start" Width="100px" Style="display: flex; align-items: center;">
+                        <FluentCheckbox Value="context!.IsCompleted" ValueChanged="(state => OnTodoIsCompleteStateChanged(context!.Id, state))" />
+                    </TemplateColumn>
+                    <TemplateColumn Title="Title" Style="display: flex; align-items: center;">
+                        <span @onclick="() => OpenPanelRightAsync(context)" style="cursor: pointer; margin: 0;">@context!.Title</span>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Due" Style="display: flex; align-items: center;">
+                        @if (context!.DueDate is not null)
+                        {
+                            <span @onclick="OnClick" style="cursor: pointer; margin: 0;">@context!.DueDate.Humanized()</span>
+                        }
+                    </TemplateColumn>
+                    <TemplateColumn Align="@Align.End">
+                        <FluentButton aria-label="Edit item" IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="@OnClick" />
+                        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@OnClick" />
+                    </TemplateColumn>
+                </FluentDataGrid>
+            </FluentGridItem>
+        </FluentGrid>
+    </FluentGridItem>
+</FluentGrid>
+
+@code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    [Parameter] 
+    public string Filter { get; set; } = string.Empty;
+
+    [Inject]
+    public IDialogService DialogService { get; set; } = default!;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    private IQueryable<Todo> todos = new List<Todo>().AsQueryable();
+
+    private Todo SelectedTodo = default!;
+
+    private string title = string.Empty;
+
+    private DateTime? dueDate = null;
+
+    private bool expanded = true;
+
+    private bool dueDatePickerOpen = false;
+
+    private CreateTodoInputModel createTodoInput = new CreateTodoInputModel();
+
+    private string PageTitle => Filter switch
+    {
+        "inbox" => "Inbox",
+        "completed" => "Completed",
+        "trash" => "Trash",
+        _ => "Inbox"
+    };
+
+    private string applicationUserId = string.Empty;
+
+    bool open = false;
+
+    private IDialogReference? _dialog;
+
+    private async Task OpenPanelRightAsync(Todo selectedTodo)
+    {
+        _dialog = await DialogService.ShowPanelAsync<EditTodoPanel>(selectedTodo, new DialogParameters<Todo>()
+        {
+            Content = selectedTodo,
+            Alignment = HorizontalAlignment.Right,
+            Modal = true,
+            ShowDismiss = false,
+            DialogType = DialogType.Panel,
+            Width = "500px",
+        });
+        DialogResult result = await _dialog.Result;
+        HandlePanel(result);
+    }
+
+    private static void HandlePanel(DialogResult result)
+    {
+        if (result.Cancelled)
+        {
+            return;
+        }
+
+        if (result.Data is not null)
+        {
+            return;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user?.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                applicationUserId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                await GetInboxTodos();
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private void OnClick(MouseEventArgs e)
+    {
+        Console.WriteLine("NavMenu item clicked");
+    }
+
+    private void OnClickSelectedTodo(Todo todo)
+    {
+        SelectedTodo = todo;
+    }
+
+    private async Task OnChange(string value)
+    {
+        title = value;
+        StateHasChanged();
+    }
+
+    private async Task OnPressEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SaveNewTodo();
+        }
+    }
+
+    private async Task SaveNewTodo()
+    {
+        if (string.IsNullOrEmpty(title))
+        {
+            return;
+        }
+
+        var command = new CreateTodoCommand(title, dueDate, applicationUserId);
+        var result = await Mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            await GetInboxTodos();
+            dueDate = null;
+            title = string.Empty;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnTodoIsCompleteStateChanged(int todoId, bool? state)
+    {
+        if (state.HasValue && state.Value)
+        {
+            await CompleteTodo(todoId);
+        }
+        else
+        {
+            await UncompleteTodo(todoId);
+        }
+    }
+
+    private async Task CompleteTodo(int todoId)
+    {
+        var command = new CompleteTodoCommand(todoId, applicationUserId);
+        var result = await Mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            await GetInboxTodos();
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task UncompleteTodo(int todoId)
+    {
+        var command = new UnCompleteTodoCommand(todoId, applicationUserId);
+        var result = await Mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            await GetInboxTodos();
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GetInboxTodos()
+    {
+        var command = new GetInboxTodosQuery(applicationUserId);
+        var result = await Mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            todos = result.Value.AsQueryable();
+        }
+
+        StateHasChanged();
+    }
+
+    private void SelectDueDateToday()
+    {
+        dueDate = DateTime.Today;
+        StateHasChanged();
+    }
+
+    private void SelectDueDateTomorrow()
+    {
+        dueDate = DateTime.Today.AddDays(1);
+        StateHasChanged();
+    }
+
+    private void SelectDueDateNextWeek()
+    {
+        dueDate = DateTime.Today.AddDays(7);
+        StateHasChanged();
+    }
+
+    private void OnDueDateSelected(DateTime? date)
+    {
+        dueDate = date;
+        dueDatePickerOpen = false;
+        StateHasChanged();
+    }
+}

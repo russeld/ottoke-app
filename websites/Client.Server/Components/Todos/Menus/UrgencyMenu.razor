@@ -1,0 +1,43 @@
+﻿<FluentButton Id="urgency"
+              IconStart="@(new Icons.Regular.Size16.Flag())"
+              Title="Urgency"
+              Appearance="Appearance.Lightweight">
+    <FluentMenu Anchor="urgency" @bind-Open="open" VerticalThreshold="170">
+        <FluentMenuItem>
+            Critical
+            <span slot="start" style="display: flex; align-items: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size16.Flag())" Color="Color.Neutral" Slot="start" />
+            </span>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            High
+            <span slot="start" style="display: flex; align-items: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size16.Flag())" Color="Color.Neutral" Slot="start" />
+            </span>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            Medium
+            <span slot="start" style="display: flex; align-items: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size16.Flag())" Color="Color.Neutral" Slot="start" />
+            </span>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            Low
+            <span slot="start" style="display: flex; align-items: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size16.Flag())" Color="Color.Neutral" Slot="start" />
+            </span>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            None
+            <span slot="start" style="display: flex; align-items: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size16.Flag())" Color="Color.Neutral" Slot="start" />
+            </span>
+        </FluentMenuItem>
+    </FluentMenu>
+</FluentButton>
+
+@code {
+    private string anchor = "urgency";
+
+    private bool open = false;
+}

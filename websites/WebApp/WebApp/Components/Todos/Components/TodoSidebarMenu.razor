@@ -1,0 +1,87 @@
+﻿@using Application.Todos.Queries.GetSmartFoldersCount
+@using Core.Labels.Entities
+@using Core.Todos.Models
+@using MediatR
+@using Core.Todos.Entities
+@using WebApp.Components.Todos.Components.Dialogs
+@using WebApp.Components.Todos.Components.Menus
+@using WebApp.Components.Todos.Components.NavMenus
+@using WebApp.States
+@rendermode InteractiveServer
+@implements IDisposable
+@inject NavigationManager NavigationManager
+
+<MudNavMenu Class="mud-height-full">
+    <MudNavLink Href="/a/todos/inbox" Match="NavLinkMatch.All" IconColor="Color.Primary" Icon="@Icons.Material.Filled.Inbox">
+        <div class="d-flex align-content-center justify-between">
+            <div class="flex-1">Inbox</div>
+            @if (smartFolderCount.InboxCount > 0)
+            {
+                <div class="sidebar-chip-badge">@smartFolderCount.InboxCount</div>
+            }
+        </div>
+    </MudNavLink>
+    <MudNavLink Href="/a/todos/important" Match="NavLinkMatch.All" IconColor="Color.Warning" Icon="@Icons.Material.Outlined.LabelImportant">
+        <div class="d-flex align-content-center justify-between">
+            <div class="flex-1">Important</div>
+            @if (smartFolderCount.ImportantCount > 0) {
+                <div class="sidebar-chip-badge">@smartFolderCount.ImportantCount</div>
+            }
+        </div>
+    </MudNavLink>
+    <MudNavLink Href="/a/todos/completed" Match="NavLinkMatch.All" IconColor="Color.Success" Icon="@Icons.Material.Filled.CheckBox">Completed</MudNavLink>
+    <LabelNavMenu />
+</MudNavMenu>
+
+@code {
+    [Inject]
+    public IDialogService DialogService { get; set; } = default!;
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    [Inject]
+    public TodoAppState TodoAppState { get; set; } = default!;
+
+    [Parameter]
+    public string ApplicationUserId { get; set; } = string.Empty;
+
+    private string? currentUrl;
+
+    private SmartFolderCount smartFolderCount = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+        TodoAppState.OnChange += OnTodoAppStateStateChanged;
+
+        await base.OnInitializedAsync();
+        await GetSmartFolderCount();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    private async Task GetSmartFolderCount()
+    {
+        var response = await Mediator.Send(new GetSmartFoldersCountQuery(ApplicationUserId));
+        if (response.IsSuccess)
+        {
+            smartFolderCount = response.Value;
+        }
+        StateHasChanged();
+    }
+
+    private void OnTodoAppStateStateChanged() => GetSmartFolderCount();
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        TodoAppState.OnChange -= OnTodoAppStateStateChanged;
+    }
+}

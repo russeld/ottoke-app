@@ -1,0 +1,68 @@
+﻿@using Application.Labels.Commands.Create
+@using Application.Labels.Commands.EditLabel
+@using Core.Labels.Entities
+@using MediatR
+@using MudBlazor.Utilities
+@rendermode InteractiveServer
+
+<MudDialog>
+    <TitleContent>
+        <h2>Edit Folder</h2>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Elevation="0" MinHeight="100px">
+            <MudStack>
+                <MudTextField @bind-Value="Folder.Title" 
+                              Immediate 
+                              Variant="Variant.Text" 
+                              Placeholder="Title"></MudTextField>
+                <MudColorPicker Adornment="Adornment.Start" 
+                                @bind-Text="Folder.Color"
+                                ImmediateText 
+                                Style="@($"color: {Folder.Color};")" 
+                                Placeholder="Color" 
+                                ColorPickerView="ColorPickerView.Palette" />
+            </MudStack>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnClickSave">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Inject]
+    public IMediator Mediator { get; set; } = default!;
+
+    [Parameter]
+    public Label Folder { get; set; } = default!;
+
+    [Parameter]
+    public string ApplicationUserId { get; set; } = string.Empty;
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task OnClickSave()
+    {
+        try
+        {
+            var command = new EditLabelCommand(Folder, ApplicationUserId);
+            var result = await Mediator.Send(command);
+
+            if (result.IsSuccess)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

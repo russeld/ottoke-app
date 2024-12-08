@@ -1,0 +1,73 @@
+﻿@inject IDialogService DialogService
+
+<div class="navmenu">
+    <FluentStack Orientation="Orientation.Vertical" Style="height:100%;">
+        <FluentAppBar Style="height: 100%;">
+            <FluentAppBarItem Href="/"
+                              Match="NavLinkMatch.All"
+                              IconRest="HomeIcon()"
+                              IconActive="HomeIcon(active: true)"
+                              Text="Home" />
+            <FluentAppBarItem Href="/todos"
+                              IconRest="TodosIcon()"
+                              IconActive="TodosIcon(active: true)"
+                              Text="Todos" />
+            <FluentAppBarItem Href="/habits"
+                              IconRest="HabitsIcon()"
+                              IconActive="HabitsIcon(active: true)"
+                              Text="Habits"
+                              OnClick="HandleOnClick" />
+            <FluentAppBarItem Href="@(null)"
+                              IconRest="IconsIcon()"
+                              IconActive="IconsIcon(active: true)"
+                              Text="Icons"
+                              OnClick="ShowWarningAsync" />
+            <FluentAppBarItem Href="/Dialog"
+                              IconRest="DialogIcon()"
+                              IconActive="DialogIcon(active: true)"
+                              Text="Dialog"
+                              OnClick="HandleOnClick" />
+        </FluentAppBar>
+    </FluentStack>
+</div>
+
+@code {
+    private static Icon HomeIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.Home()
+               : new Icons.Regular.Size24.Home();
+
+    private static Icon TodosIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.CheckboxChecked()
+               : new Icons.Regular.Size24.CheckboxChecked();
+
+    private static Icon HabitsIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.Clock()
+               : new Icons.Regular.Size24.Clock();
+
+    private static Icon IconsIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.Symbols()
+               : new Icons.Regular.Size24.Symbols();
+
+    private static Icon DialogIcon(bool active = false) =>
+        active ? new Icons.Filled.Size24.AppGeneric()
+               : new Icons.Regular.Size24.AppGeneric();
+
+
+    private void HandleOnClick(IAppBarItem item)
+    {
+        Console.WriteLine("Hellooo");
+        Console.WriteLine($"Clicked {item.Text}!");
+    }
+
+    private async Task ShowSuccessAsync(IAppBarItem item)
+    {
+        var dialog = await DialogService.ShowSuccessAsync($"You clicked {item.Text}");
+        var result = await dialog.Result;
+    }
+
+    private async Task ShowWarningAsync(IAppBarItem item)
+    {
+        var dialog = await DialogService.ShowWarningAsync($"Are you sure? {item.Text}");
+        var result = await dialog.Result;
+    }
+}
