@@ -7,6 +7,7 @@ public class GetYourDayTodosSpec : Specification<Todo>
 {
     public GetYourDayTodosSpec(string applicationUserId)
     {
+        Query.AsNoTracking().Include(t => t.Label);
         Query.Where(todo => todo.ApplicationUserId == applicationUserId);
         Query.Where(todo => todo.DueDate == DateTime.Today.Date);
         Query.Where(todo => !todo.IsDeleted);

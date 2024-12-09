@@ -15,7 +15,7 @@ public partial class YourDayTodoCard : ComponentBase
     [CascadingParameter]
     public Task<AuthenticationState>? authenticationState { get; set; }
 
-    private string ApplicationUserId = string.Empty;
+    private string applicationUserId = string.Empty;
 
     private List<Todo> Todos = new();
 
@@ -27,7 +27,7 @@ public partial class YourDayTodoCard : ComponentBase
             var user = authState?.User;
             if (user is not null)
             {
-                ApplicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 await LoadTodos();
             }
         }
@@ -37,7 +37,7 @@ public partial class YourDayTodoCard : ComponentBase
 
     private async Task LoadTodos()
     {
-        var query = new GetYourDayTodosQuery(ApplicationUserId);
+        var query = new GetYourDayTodosQuery(applicationUserId);
         var result = await Mediator.Send(query);
         if (result.IsSuccess)
         {
