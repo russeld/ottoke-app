@@ -1,12 +1,12 @@
 ﻿<MudDialog DefaultFocus="DefaultFocus.FirstChild">
     <TitleContent>
-        <h2>Delete @TodoModel.Title @TodoModel.Id</h2>
+        <h2>Delete To Do</h2>
     </TitleContent>
     <DialogContent>
         <MudPaper Elevation="0">
             <MudStack Spacing="4">
-                <MudAlert Severity="Severity.Warning" Icon="@Icons.Material.Filled.Warning">You cannot reverse this action></MudAlert>
-                <MudText><strong>Are you sure you want to delete this todo?</strong></MudText>
+                <MudText><strong>Are you sure you want to delete this todo? This action cannot be undone.</strong></MudText>
+                <MudText Typo="Typo.caption">Delete <strong>@TodoModel.Title</strong>?</MudText>
             </MudStack>
         </MudPaper>
     </DialogContent>

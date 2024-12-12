@@ -10,8 +10,9 @@ public class GetYourDayTodosSpec : Specification<Todo>
         Query.AsNoTracking().Include(t => t.Label);
         Query.Where(todo => todo.ApplicationUserId == applicationUserId);
         Query.Where(todo => todo.DueDate == DateTime.Today.Date);
-        Query.Where(todo => !todo.IsDeleted);
+        Query.Where(todo => !todo.IsArchived);
         Query.OrderBy(t => t.IsCompleted)
+             .ThenBy(t => t.DueDate)
              .ThenByDescending(t => t.IsImportant)
              .ThenByDescending(t => t.Urgency);
     }

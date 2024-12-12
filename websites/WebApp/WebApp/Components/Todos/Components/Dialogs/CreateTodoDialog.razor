@@ -15,7 +15,7 @@
             <MudStack Spacing="4">
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Title</MudText>
-                    <MudTextField @bind-Value="InputModel.Title"
+                    <MudTextField @bind-Value="inputModel.Title"
                                   Immediate
                                   Variant="Variant.Outlined"
                                   Underline="false"></MudTextField>
@@ -23,23 +23,23 @@
 
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Description</MudText>
-                    <MudTextField @bind-Value="InputModel.Description" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="inputModel.Description" Variant="Variant.Outlined" />
                 </MudStack>
 
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Urgency</MudText>
-                    <MudChipSet T="TodoUrgency" @bind-SelectedValue="InputModel.Urgency" CheckMark SelectionMode="SelectionMode.SingleSelection">
-                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Error" Value="@TodoUrgency.Urgent">@TodoUrgency.Urgent</MudChip>
-                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Warning" Value="@TodoUrgency.High">@TodoUrgency.High</MudChip>
-                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Info" Value="@TodoUrgency.Medium">@TodoUrgency.Medium</MudChip>
+                    <MudChipSet T="TodoUrgency" @bind-SelectedValue="inputModel.Urgency" CheckMark SelectionMode="SelectionMode.SingleSelection">
                         <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Default" Value="@TodoUrgency.Low" Default="true">@TodoUrgency.Low</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Info" Value="@TodoUrgency.Medium">@TodoUrgency.Medium</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Warning" Value="@TodoUrgency.High">@TodoUrgency.High</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Error" Value="@TodoUrgency.Urgent">@TodoUrgency.Urgent</MudChip>
                     </MudChipSet>
                 </MudStack>
 
                 <MudStack>
                     <MudText Typo="Typo.subtitle2">Label</MudText>
                     <MudAutocomplete T="Label"
-                                     Value="InputModel.Label"
+                                     Value="inputModel.Label"
                                      ValueChanged="OnLabelChanged"
                                      ResetValueOnEmptyText="true"
                                      Variant="Variant.Outlined"
@@ -61,7 +61,7 @@
 
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Due Date</MudText>
-                    <MudDatePicker @bind-Date="InputModel.DueDate"
+                    <MudDatePicker @bind-Date="inputModel.DueDate"
                                    Adornment="Adornment.Start"
                                    Variant="Variant.Outlined"
                                    Clearable

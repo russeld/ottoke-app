@@ -17,7 +17,7 @@ public class EditLabelCommandHandler : ICommandHandler<EditLabelCommand, Result>
     {
         try
         {
-            var folder = await _repo.GetByIdAsync(request.Folder.Id);
+            var folder = await _repo.GetByIdAsync(request.Label.Id);
 
             if (folder == null)
             {
@@ -29,9 +29,9 @@ public class EditLabelCommandHandler : ICommandHandler<EditLabelCommand, Result>
                 return Result.Error("You are not authorized to edit this folder");
             }
 
-            folder.Title = request.Folder.Title;
-            folder.Color = request.Folder.Color;
-            folder.Icon = request.Folder.Icon;
+            folder.Title = request.Label.Title;
+            folder.Color = request.Label.Color;
+            folder.Icon = request.Label.Icon;
             folder.UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow);
 
             await _repo.SaveChangesAsync(cancellationToken);

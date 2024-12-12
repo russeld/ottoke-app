@@ -9,7 +9,7 @@ public class GetImportantCountSpec : Specification<Todo>
     {
         Query.Where(todo => todo.IsImportant);
         Query.Where(todo => !todo.IsCompleted);
-        Query.Where(todo => !todo.IsDeleted);
+        Query.Where(todo => !todo.IsArchived);
         Query.Where(todo => todo.ApplicationUserId == applicationUserId);
     }
 }

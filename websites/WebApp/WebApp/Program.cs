@@ -46,6 +46,7 @@ builder.Services.AddApplicationDependencies(builder.Configuration);
 builder.Services.AddInfrastructureDependencies(builder.Configuration);
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddSingleton<ITodoAppState, TodoAppState>();
+builder.Services.AddSingleton<IHabitTrackerAppState, HabitTrackerAppState>();
 
 var app = builder.Build();
 

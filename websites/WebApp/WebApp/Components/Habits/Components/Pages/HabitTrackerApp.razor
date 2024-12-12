@@ -1,0 +1,16 @@
+﻿@page "/a/habit-tracker"
+
+<MudStack Class="mx-10 mt-5 " Spacing="2">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-5">
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <h2><strong>Habit Tracker</strong></h2>
+        </MudStack>
+        <div>
+            <MudButton Class="px-4 py-2" 
+                       Color="Color.Primary" 
+                       Variant="Variant.Filled" 
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="OnClickCreateHabit">Add Habit</MudButton>
+        </div>
+    </MudStack>
+</MudStack>

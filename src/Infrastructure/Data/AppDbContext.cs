@@ -1,4 +1,5 @@
-﻿using Core.Labels.Entities;
+﻿using Core.Habits.Entities;
+using Core.Labels.Entities;
 using Core.Sections.Entities;
 using Core.Todos.Entities;
 using Core.Users.Entities;
@@ -15,6 +16,8 @@ namespace Infrastructure.Data
         public DbSet<Label> Labels { get; set; }
 
         public DbSet<Section> Sections { get; set; }
+
+        public DbSet<Habit> Habits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

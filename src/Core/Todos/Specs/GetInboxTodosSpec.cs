@@ -9,7 +9,7 @@ public class GetInboxTodosSpec : Specification<Todo>
     {
         Query.AsNoTracking().Include(t => t.Label);
         Query.Where(todo => todo.ApplicationUserId == applicationUserId && !todo.IsCompleted);
-        Query.Where(todo => !todo.IsDeleted);
+        Query.Where(todo => !todo.IsArchived);
         Query.OrderBy(t => t.IsCompleted)
              .ThenBy(t => t.DueDate)
              .ThenByDescending(t => t.IsImportant)

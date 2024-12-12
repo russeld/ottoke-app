@@ -29,12 +29,7 @@ public partial class CreateTodoDialog : ComponentBase
     [Parameter]
     public List<Label> Labels { get; set; } = [];
 
-    private CreateTodoInputModel InputModel { get; set; }
-
-    protected override void OnInitialized()
-    {
-        InputModel = new CreateTodoInputModel();
-    }
+    private readonly CreateTodoInputModel inputModel = new();
 
     private void OnClickCancel()
     {
@@ -62,7 +57,7 @@ public partial class CreateTodoDialog : ComponentBase
 
     private async Task OnClickCreateTodo()
     {
-        var result = await Mediator.Send(new CreateTodoCommand(InputModel, ApplicationUserId));
+        var result = await Mediator.Send(new CreateTodoCommand(inputModel, ApplicationUserId));
 
         if (result.IsSuccess)
         {
@@ -91,12 +86,12 @@ public partial class CreateTodoDialog : ComponentBase
             if (result.IsSuccess)
             {
                 Labels.Add(new Label { Id = result.Value.Id, Title = selectedLabel.Title });
-                InputModel.Label = result.Value;
+                inputModel.Label = result.Value;
             }
         }
         else
         {
-            InputModel.Label = selectedLabel;
+            inputModel.Label = selectedLabel;
         }
 
         StateHasChanged();

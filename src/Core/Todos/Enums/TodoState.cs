@@ -6,7 +6,7 @@ namespace Core.Todos.Enums;
 public enum TodoState
 {
     [Description("Active")]
-    Active         = 1 << 0,
+    Active      = 1 << 0,
     [Description("Completed")]
     Completed   = 1 << 1,
     [Description("Won't Do")]

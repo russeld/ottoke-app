@@ -2,7 +2,7 @@
 
 public enum TodoUrgency
 {
-    Low,
+    Low = 1,
     Medium,
     High,
     Urgent

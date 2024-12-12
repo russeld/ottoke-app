@@ -27,10 +27,10 @@
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Urgency</MudText>
                     <MudChipSet T="TodoUrgency" @bind-SelectedValue="TodoModel.Urgency" CheckMark SelectionMode="SelectionMode.SingleSelection">
-                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Error" Value="@TodoUrgency.Urgent">@TodoUrgency.Urgent</MudChip>
-                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Warning" Value="@TodoUrgency.High">@TodoUrgency.High</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Default" Value="@TodoUrgency.Low">@TodoUrgency.Low</MudChip>
                         <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Info" Value="@TodoUrgency.Medium">@TodoUrgency.Medium</MudChip>
-                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Default" Value="@TodoUrgency.Low" Default="true">@TodoUrgency.Low</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Warning" Value="@TodoUrgency.High">@TodoUrgency.High</MudChip>
+                        <MudChip CheckedIcon="@Icons.Material.Filled.Flag" Color="Color.Error" Value="@TodoUrgency.Urgent">@TodoUrgency.Urgent</MudChip>
                     </MudChipSet>
                 </MudStack>
 
