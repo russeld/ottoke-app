@@ -9,30 +9,30 @@ namespace WebApp.Components.Habits.Components.Dialogs;
 public partial class CreateHabitDialog : ComponentBase
 {
     [CascadingParameter]
-    private MudDialogInstance MudDialog { get; set; }
+    private MudDialogInstance MudDialog { get; set; } = default!;
 
     [Inject]
     public IDialogService DialogService { get; set; } = default!;
 
     [Inject]
-    public IMediator Mediator { get; set; }
+    public IMediator Mediator { get; set; } = default!;
 
     [Inject]
     public ISnackbar Snackbar { get; set; } = default!;
 
     [Parameter]
-    public string ApplicationUserId { get; set; }
+    public string ApplicationUserId { get; set; } = string.Empty;
 
-    private CreateHabitInputModel inputModel { get; set; } = new();
+    private readonly CreateHabitInputModel InputModel = new();
 
     private void OnClickCancel()
     {
         MudDialog.Cancel();
     }
 
-    private async Task OnClickCreateHabit()
+    private async Task OnClickCreate()
     {
-        var result = await Mediator.Send(new CreateHabitCommand(inputModel, ApplicationUserId));
+        var result = await Mediator.Send(new CreateHabitCommand(InputModel, ApplicationUserId));
 
         if (result.IsSuccess)
         {

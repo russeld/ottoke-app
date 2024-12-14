@@ -1,25 +1,25 @@
 ﻿@using Core.Habits.Enums
 <MudDialog DefaultFocus="DefaultFocus.FirstChild">
     <TitleContent>
-        <h2>New Habit</h2>
+        <h2>Start your new habit</h2>
     </TitleContent>
     <DialogContent>
          <MudPaper Elevation="0" Class="pb-5">
              <MudStack Spacing="4">
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Name</MudText>
-                    <MudTextField @bind-Value="inputModel.Name"
+                    <MudTextField @bind-Value="InputModel.Name"
                                   Immediate
                                   Variant="Variant.Outlined"
                                   Underline="false" />
                 </MudStack>
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Description</MudText>
-                    <MudTextField @bind-Value="inputModel.Description" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="InputModel.Description" Variant="Variant.Outlined" />
                 </MudStack>
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Frequency</MudText>
-                    <MudChipSet T="HabitFrequency" @bind-SelectedValue="inputModel.Frequency" CheckMark SelectionMode="SelectionMode.SingleSelection">
+                    <MudChipSet T="HabitFrequency" @bind-SelectedValue="InputModel.Frequency" CheckMark SelectionMode="SelectionMode.SingleSelection">
                         <MudChip Variant="Variant.Text" Color="Color.Default" Value="@HabitFrequency.Daily">@HabitFrequency.Daily</MudChip>
                         <MudChip Color="Color.Default" Value="@HabitFrequency.Weekly">@HabitFrequency.Weekly</MudChip>
                         <MudChip Color="Color.Default" Value="@HabitFrequency.Monthly">@HabitFrequency.Monthly</MudChip>
@@ -32,7 +32,7 @@
     <DialogActions>
         <MudStack Row="true" Spacing="5" Class="pa-5">
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="OnClickCancel">Cancel</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickCreateHabit">Start Habit</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickCreate">Save Habit</MudButton>
         </MudStack>
     </DialogActions>
 </MudDialog>

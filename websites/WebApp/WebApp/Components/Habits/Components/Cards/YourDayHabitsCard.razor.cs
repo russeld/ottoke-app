@@ -1,26 +1,24 @@
-﻿using Application.Todos.Queries.GetYourDayTodos;
+﻿using Application.Habits.Queries.GetYourDayHabits;
+using Core.Habits.Entities;
 using Core.Todos.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
-namespace WebApp.Components.Todos.Components.Cards;
+namespace WebApp.Components.Habits.Components.Cards;
 
-public partial class YourDayTodoCard : ComponentBase
+public partial class YourDayHabitsCard : ComponentBase
 {
-    // cascading parameter
-    [CascadingParameter]
-    public Task<AuthenticationState>? authenticationState { get; set; }
-
-    // inject
     [Inject]
     public IMediator Mediator { get; set; }
 
-    // private
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState { get; set; }
+
     private string applicationUserId = string.Empty;
 
-    private List<Todo> todoList = new();
+    private List<Habit> habitList = [];
 
     protected async override Task OnInitializedAsync()
     {
@@ -31,20 +29,19 @@ public partial class YourDayTodoCard : ComponentBase
             if (user is not null)
             {
                 applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-                await LoadTodos();
+                await LoadHabits();
             }
         }
-
         await base.OnInitializedAsync();
     }
 
-    private async Task LoadTodos()
+    private async Task LoadHabits()
     {
-        var query = new GetYourDayTodosQuery(applicationUserId);
+        var query = new GetYourDayHabitsQuery(applicationUserId);
         var result = await Mediator.Send(query);
         if (result.IsSuccess)
         {
-            todoList = result.Value;
+            habitList = result.Value;
         }
     }
 }

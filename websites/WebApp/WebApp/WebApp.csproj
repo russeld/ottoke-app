@@ -36,4 +36,9 @@
     <_ContentIncludedByDefault Remove="Components\Todos\Index.razor" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="Shared\" />
+  </ItemGroup>
+
 </Project>

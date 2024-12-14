@@ -1,19 +1,19 @@
 ﻿<MudDialog DefaultFocus="DefaultFocus.FirstChild">
     <TitleContent>
-        <h2>Delete To Do</h2>
+        <h2>Delete Habit</h2>
     </TitleContent>
     <DialogContent>
         <MudPaper Elevation="0">
             <MudStack Spacing="4">
-                <MudText><strong>Are you sure you want to delete this todo? This action cannot be undone.</strong></MudText>
-                <MudText Typo="Typo.caption">Delete <strong>@TodoModel.Title</strong>?</MudText>
+                <MudText><strong>Are you sure you want to delete this habit? This action cannot be undone.</strong></MudText>
+                <MudText Typo="Typo.caption">Delete <strong>@HabitModel.Name</strong>?</MudText>
             </MudStack>
         </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudStack Row="true" Spacing="5" Class="pa-5">
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="OnClickCancel">Cancel</MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="OnClickDelete">Delete Todo</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="OnClickDelete">Delete Habit</MudButton>
         </MudStack>
     </DialogActions>
 </MudDialog>

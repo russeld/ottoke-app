@@ -1,15 +1,19 @@
-﻿using Application.Todos.Commands.Delete;
-using Core.Todos.Entities;
+﻿using Application.Habits.Commands.DeleteHabit;
+using Core.Habits.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using WebApp.States;
 
-namespace WebApp.Components.Todos.Components.Dialogs;
+namespace WebApp.Components.Habits.Components.Dialogs;
 
-public partial class DeleteTodoDialog : ComponentBase
+public partial class DeleteHabitDialog : ComponentBase
 {
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; }
+
+    [Inject]
+    public IHabitTrackerAppState HabitAppState { get; set; }
 
     [Inject]
     public IDialogService DialogService { get; set; } = default!;
@@ -24,7 +28,7 @@ public partial class DeleteTodoDialog : ComponentBase
     public string ApplicationUserId { get; set; }
 
     [Parameter]
-    public Todo TodoModel { get; set; }
+    public Habit HabitModel { get; set; }
 
     private void OnClickCancel()
     {
@@ -33,10 +37,11 @@ public partial class DeleteTodoDialog : ComponentBase
 
     private async Task OnClickDelete()
     {
-        var result = await Mediator.Send(new DeleteTodoCommand(TodoModel.Id, ApplicationUserId));
+        var result = await Mediator.Send(new DeleteHabitCommand(HabitModel.Id, ApplicationUserId));
         if (result.IsSuccess)
         {
-            Snackbar.Add("Todo deleted successfully", Severity.Success);
+            HabitAppState.RemoveHabit(HabitModel);
+            Snackbar.Add("Habit deleted successfully", Severity.Success);
             MudDialog.Close(DialogResult.Ok(true));
         }
         else

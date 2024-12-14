@@ -26,7 +26,7 @@ public partial class EditHabitDialog : ComponentBase
     public IHabitTrackerAppState HabitAppState { get; set; } = default!;
 
     [Parameter]
-    public Habit Habit { get; set; } = default!;
+    public Habit HabitModel { get; set; } = default!;
 
     [Parameter]
     public string ApplicationUserId { get; set; }
@@ -40,10 +40,10 @@ public partial class EditHabitDialog : ComponentBase
     {
         try
         {
-            var result = await Mediator.Send(new EditHabitCommand(Habit, ApplicationUserId));
+            var result = await Mediator.Send(new EditHabitCommand(HabitModel, ApplicationUserId));
             if (result.IsSuccess)
             {
-                HabitAppState.UpdateHabit(Habit);
+                HabitAppState.UpdateHabit(HabitModel);
                 Snackbar.Add("Habit updated successfully", Severity.Success);
                 MudDialog.Close();
             }

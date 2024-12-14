@@ -8,18 +8,18 @@
             <MudStack Spacing="4">
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Name</MudText>
-                    <MudTextField @bind-Value="Habit.Name"
+                    <MudTextField @bind-Value="HabitModel.Name"
                                   Immediate
                                   Variant="Variant.Outlined"
                                   Underline="false" />
                 </MudStack>
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Description</MudText>
-                    <MudTextField @bind-Value="Habit.Description" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="HabitModel.Description" Variant="Variant.Outlined" />
                 </MudStack>
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.subtitle2">Frequency</MudText>
-                    <MudChipSet T="HabitFrequency" @bind-SelectedValue="Habit.Frequency" CheckMark SelectionMode="SelectionMode.SingleSelection">
+                    <MudChipSet T="HabitFrequency" @bind-SelectedValue="HabitModel.Frequency" CheckMark SelectionMode="SelectionMode.SingleSelection">
                         <MudChip Variant="Variant.Text" Color="Color.Default" Value="@HabitFrequency.Daily">@HabitFrequency.Daily</MudChip>
                         <MudChip Color="Color.Default" Value="@HabitFrequency.Weekly">@HabitFrequency.Weekly</MudChip>
                         <MudChip Color="Color.Default" Value="@HabitFrequency.Monthly">@HabitFrequency.Monthly</MudChip>

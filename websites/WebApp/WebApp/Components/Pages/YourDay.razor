@@ -1,5 +1,6 @@
 ﻿@page "/your-day"
 @using Microsoft.AspNetCore.Authorization
+@using WebApp.Components.Habits.Components.Cards
 @using WebApp.Components.Todos.Components.Cards
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -10,6 +11,9 @@
         <MudGrid Spacing="5">
             <MudItem xs="12" md="6">
                 <YourDayTodoCard />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <YourDayHabitsCard />
             </MudItem>
         </MudGrid>
     </MudStack>

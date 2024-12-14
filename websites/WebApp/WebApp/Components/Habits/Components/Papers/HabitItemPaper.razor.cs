@@ -43,14 +43,16 @@ public partial class HabitItemPaper : ComponentBase, IDisposable
 
     private async Task OnClickEdit()
     {
-        var parameters = new DialogParameters() { { "Habit", Habit }, { "ApplicationUserId", ApplicationUserId } };
+        var parameters = new DialogParameters() { { "HabitModel", Habit }, { "ApplicationUserId", ApplicationUserId } };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter };
         await DialogService.ShowAsync<EditHabitDialog>("Edit Habit", parameters, options);
     }
 
-    private void OnClickDelete()
+    private async Task OnClickDelete()
     {
-
+        var parameters = new DialogParameters() { { "HabitModel", Habit }, { "ApplicationUserId", ApplicationUserId } };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter };
+        await DialogService.ShowAsync<DeleteHabitDialog>("Delete Habit", parameters, options);
     }
 
     public void Dispose()

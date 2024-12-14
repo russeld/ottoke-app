@@ -1,32 +1,32 @@
-﻿@using WebApp.Components.Todos.Components.Papers
+﻿@using WebApp.Components.Habits.Components.Papers
 
 <MudCard Class="pb-5 your-day-todo" Elevation="0">
     <MudCardHeader Class="todo-card-header border-solid border-2-1">
         <CardHeaderContent>
             <MudStack Row="true" AlignItems="AlignItems.Center">
-                <h3>Todos</h3>
+                <h3>Habits</h3>
             </MudStack>
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardContent>
         <MudSimpleTable Elevation="0" Dense Style="overflow-x: auto;">
-            @if (todoList.Any())
+            @if (habitList.Any())
             {
                 <tbody>
-                    @foreach (var todo in todoList)
+                    @foreach (var habit in habitList)
                     {
                         <tr>
                             <td>
-                                <TodoItemPaper Todo="@todo" ApplicationUserId="@applicationUserId" />
+                                <HabitItemPaper ApplicationUserId="@applicationUserId" Habit="habit" />
                             </td>
                         </tr>
                     }
                 </tbody>
             }
-            else 
+            else
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
-                    <MudButton Href="/a/todos" Variant="Variant.Filled" Color="Color.Info">Manage Todos</MudButton>
+                    <MudButton Href="/a/todos" Variant="Variant.Filled" Color="Color.Info">Manage Habits</MudButton>
                 </MudStack>
             }
         </MudSimpleTable>

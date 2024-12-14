@@ -23,28 +23,17 @@
     }
     else
     {
-        <MudExpansionPanels Outlined="false" Elevation="0" MultiExpansion="true">
-            <MudExpansionPanel Expanded="true">
-                <TitleContent>
-                    <MudStack Row="true">
-                        <MudText Typo="Typo.h6">Habits</MudText>
-                    </MudStack>
-                </TitleContent>
-                <ChildContent>
-                    <MudSimpleTable Elevation="0" Style="overflow-x: auto;">
-                        <tbody>
-                            @foreach (var habit in HabitAppState!.Habits)
-                            {
-                                <tr>
-                                    <td>
-                                        <HabitItemPaper Habit="@habit" ApplicationUserId="@applicationUserId" />
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </MudSimpleTable>
-                </ChildContent>
-            </MudExpansionPanel>
-        </MudExpansionPanels>
+        <MudSimpleTable Dense Elevation="0" Style="overflow-x: auto;">
+            <tbody>
+                @foreach (var habit in HabitAppState!.Habits)
+                {
+                    <tr>
+                        <td>
+                            <HabitItemPaper Habit="@habit" ApplicationUserId="@applicationUserId" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
     }
 </MudStack>

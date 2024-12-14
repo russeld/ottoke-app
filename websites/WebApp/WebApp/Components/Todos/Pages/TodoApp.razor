@@ -4,7 +4,7 @@
 <MudStack Class="mx-10 mt-5 " Spacing="2">
     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-5">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-            <h2><strong>To Do List</strong></h2>
+            <h2><strong>To Do</strong></h2>
         </MudStack>
         <div>
             <MudButton Class="px-4 py-2" 
@@ -23,28 +23,17 @@
     }
     else
     {
-        <MudExpansionPanels Outlined="false" Elevation="0" MultiExpansion="true">
-            <MudExpansionPanel Expanded="true">
-                <TitleContent>
-                    <MudStack Row="true">
-                        <MudText Typo="Typo.h6">Inbox</MudText>
-                    </MudStack>
-                </TitleContent>
-                <ChildContent>
-                    <MudSimpleTable Elevation="0" Dense Style="overflow-x: auto;">
-                        <tbody>
-                            @foreach (var todo in TodoAppState!.Todos)
-                            {
-                                <tr>
-                                    <td>
-                                        <TodoItemPaper Todo="@todo" ApplicationUserId="@applicationUserId" OnEdit="OnEditTodo" OnDelete="OnDeleteTodo" />
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </MudSimpleTable>
-                </ChildContent>
-            </MudExpansionPanel>
-        </MudExpansionPanels>
+        <MudSimpleTable Elevation="0" Dense Style="overflow-x: auto;">
+            <tbody>
+                @foreach (var todo in TodoAppState!.Todos)
+                {
+                    <tr>
+                        <td>
+                            <TodoItemPaper Todo="@todo" ApplicationUserId="@applicationUserId" OnEdit="OnEditTodo" OnDelete="OnDeleteTodo" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
     }
 </MudStack>
