@@ -1,4 +1,4 @@
-﻿using Application.Habits.Commands;
+﻿using Application.Habits.Commands.CreateHabit;
 using Core.Habits.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;

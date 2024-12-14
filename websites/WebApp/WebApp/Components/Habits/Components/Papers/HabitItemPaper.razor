@@ -1,0 +1,14 @@
+﻿@if (Habit != null)
+{
+    <MudStack Row="true" Justify="Justify.SpaceBetween">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.body2"><strong>@Habit.Name</strong></MudText>
+        </MudStack>
+        <MudStack>
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open habit menu">
+                <MudMenuItem OnClick="OnClickEdit">Edit</MudMenuItem>
+                <MudMenuItem OnClick="OnClickDelete">Delete</MudMenuItem>
+            </MudMenu>
+        </MudStack>
+    </MudStack>
+}

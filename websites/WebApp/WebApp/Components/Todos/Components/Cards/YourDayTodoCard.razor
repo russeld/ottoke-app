@@ -3,21 +3,33 @@
 <MudCard Class="pb-5 your-day-todo" Elevation="0">
     <MudCardHeader Class="todo-card-header border-solid border-2-1">
         <CardHeaderContent>
-            <MudText Typo="Typo.body2"><strong>To Dos</strong></MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Task"></MudIcon>
+                <h3>Todos</h3>
+            </MudStack>
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardContent>
-       <MudSimpleTable Elevation="0" Dense Style="overflow-x: auto;">
-        <tbody>
-            @foreach (var todo in Todos)
+        <MudSimpleTable Elevation="0" Dense Style="overflow-x: auto;">
+            @if (Todos.Any())
             {
-                <tr>
-                    <td>
-                        <TodoItemPaper Todo="@todo" ApplicationUserId="@applicationUserId" />
-                    </td>
-                </tr>
+                <tbody>
+                    @foreach (var todo in Todos)
+                    {
+                        <tr>
+                            <td>
+                                <TodoItemPaper Todo="@todo" ApplicationUserId="@applicationUserId" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
             }
-        </tbody>
-        </MudSimpleTable> 
+            else 
+            {
+                <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudButton Href="/a/todos" Variant="Variant.Filled" Color="Color.Info">Manage Todos</MudButton>
+                </MudStack>
+            }
+        </MudSimpleTable>
     </MudCardContent>
 </MudCard>

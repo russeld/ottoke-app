@@ -52,12 +52,10 @@ public class TodoAppState : ITodoAppState
 
     public void UpdateState()
     {
-        NotifyOnChange();
+        OnChange?.Invoke();
     }
 
     public event Action? OnChange;
-
-    private void NotifyOnChange() => OnChange?.Invoke();
 
     public void SetLabels(List<Label> labels)
     {

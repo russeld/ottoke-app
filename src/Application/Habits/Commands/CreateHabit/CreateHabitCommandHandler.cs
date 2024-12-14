@@ -3,7 +3,7 @@ using Buna.SharedKernel;
 using Core.Habits.Entities;
 using Core.Habits.Enums;
 
-namespace Application.Habits.Commands;
+namespace Application.Habits.Commands.CreateHabit;
 
 public class CreateHabitCommandHandler : ICommandHandler<CreateHabitCommand, Result<Habit>>
 {

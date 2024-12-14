@@ -10,7 +10,15 @@
         <MudStack Row="true" AlignItems="AlignItems.Center">
             <MudCheckBox T="bool" ValueChanged="@((val) => ToggleComplete(val))" Size="Size.Small" Value="@Todo.IsCompleted" Color="Color.Primary" CheckedIcon="@Icons.Material.Filled.Check" />
             <MudStack Spacing="0">
-                <MudText Typo="Typo.body2" Style="@($"color:{Colors.Gray.Darken2};")"><strong>@Todo.Title</strong></MudText>
+                @if (Todo.IsCompleted)
+                {
+                    <MudText Typo="Typo.body2" Style="@($"color:{Colors.Gray.Lighten1};")"><s><strong>@Todo.Title</strong></s></MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Style="@($"color:{Colors.Gray.Darken2};")"><strong>@Todo.Title</strong></MudText>
+                }
+
                 @if (!string.IsNullOrEmpty(Todo.Description) && Todo.IsCompleted)
                 {
                     <small><s style="@($"color:{Colors.Gray.Lighten2};")">@Todo.Description</s></small>
@@ -24,15 +32,20 @@
         <MudStack Row="true" AlignItems="AlignItems.Center">
             @if (Todo.Label != null)
             {
-                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@Todo.Label.Title</MudChip>
+                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text" Disabled="Todo.IsCompleted">@Todo.Label.Title</MudChip>
             }
             @if (Todo.DueDate != null)
             {
-                <MudChip T="string" Icon="bx bx-calendar" Color="Color.Info" Size="Size.Small" Variant="Variant.Text">
+                <MudChip T="string" Icon="bx bx-calendar" Color="Color.Info" Size="Size.Small" Variant="Variant.Text" Disabled="Todo.IsCompleted">
                     @Todo.DueDate.DueDateToString()
                 </MudChip>
             }
-            <MudChip T="string" Size="Size.Small" Color="@Todo.Urgency.IconColor()" Icon="@Icons.Material.Outlined.Flag" Variant="Variant.Text">@Todo.Urgency.Humanize()</MudChip>
+            <MudChip T="string" 
+                     Size="Size.Small" 
+                     Color="@Todo.Urgency.IconColor()" 
+                     Icon="@Icons.Material.Outlined.Flag" 
+                     Variant="Variant.Text" 
+                     Disabled="Todo.IsCompleted">@Todo.Urgency.Humanize()</MudChip>
             @if (OnEdit.HasDelegate && OnDelete.HasDelegate)
             {
                 <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open todo menu">

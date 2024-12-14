@@ -56,7 +56,7 @@ public partial class EditTodoDialog : ComponentBase
         return new List<Label>() { new Label { Title = value, Id = 0 } };
     }
 
-    private async Task OnClickUpdateTodo()
+    private async Task OnClickSave()
     {
         var result = await Mediator.Send(new UpdateTodoCommand(TodoModel, ApplicationUserId));
 

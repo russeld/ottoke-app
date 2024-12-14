@@ -30,7 +30,6 @@ public partial class TodoItemPaper : ComponentBase
     [Parameter]
     public EventCallback<Todo> OnEdit { get; set; }
 
-
     private async Task ToggleComplete(bool isCompleted)
     {
         Todo!.IsCompleted = isCompleted;

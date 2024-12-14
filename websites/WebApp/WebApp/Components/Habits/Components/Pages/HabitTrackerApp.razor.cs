@@ -1,4 +1,6 @@
-﻿using Core.Users.Entities;
+﻿using Application.Habits.Queries.GetHabits;
+using Core.Habits.Entities;
+using Core.Users.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -16,7 +18,7 @@ public partial class HabitTrackerApp : ComponentBase, IDisposable
 
 
     [Inject]
-    public IHabitTrackerAppState AppState { get; set; } = default!;
+    public IHabitTrackerAppState HabitAppState { get; set; } = default!;
 
     [Inject]
     public IMediator Mediator { get; set; } = default!;
@@ -35,26 +37,43 @@ public partial class HabitTrackerApp : ComponentBase, IDisposable
             if (user is not null)
             {
                 applicationUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                await GetHabits();
             }
         }
 
-        AppState!.OnChange += StateHasChanged;
+        HabitAppState!.OnChange += StateHasChanged;
 
         await base.OnInitializedAsync();
     }
 
+    private async Task GetHabits()
+    {
+        var result = await Mediator.Send(new GetHabitsQuery(applicationUserId));
+
+        if (result.IsSuccess)
+        {
+            HabitAppState.SetHabits(result.Value);
+        }
+    }
+
     private async Task OnClickCreateHabit()
     {
-        var options = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.TopCenter };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter };
         var parameters = new DialogParameters<CreateHabitDialog> {
             { "ApplicationUserId", applicationUserId }
         };
         var dialog = DialogService.Show<CreateHabitDialog>("Create Habit", parameters, options);
         var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            HabitAppState.AddHabit(result.Data as Habit);
+        }
     }
 
     public void Dispose()
     {
-        AppState.OnChange -= StateHasChanged;
+        HabitAppState.OnChange -= StateHasChanged;
     }
 }

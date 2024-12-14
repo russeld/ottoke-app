@@ -1,4 +1,5 @@
 ﻿@page "/a/habit-tracker"
+@using WebApp.Components.Habits.Components.Papers
 
 <MudStack Class="mx-10 mt-5 " Spacing="2">
     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-5">
@@ -13,4 +14,37 @@
                        OnClick="OnClickCreateHabit">Add Habit</MudButton>
         </div>
     </MudStack>
+    @if (!HabitAppState!.Habits.Any())
+    {
+        <MudStack Row="false" AlignItems="AlignItems.Center" Justify="Justify.Center">
+            <MudText Typo="Typo.h5" Color="Color.Default">Nothing to do! You're all caught up.</MudText>
+            <MudImage Height="200" Src="assets/images/up_to_date_re_nqid.svg" Alt="Up to date" Elevation="0" Class="rounded-lg" />
+        </MudStack>
+    }
+    else
+    {
+        <MudExpansionPanels Outlined="false" Elevation="0" MultiExpansion="true">
+            <MudExpansionPanel Expanded="true">
+                <TitleContent>
+                    <MudStack Row="true">
+                        <MudText Typo="Typo.h6">Habits</MudText>
+                    </MudStack>
+                </TitleContent>
+                <ChildContent>
+                    <MudSimpleTable Elevation="0" Style="overflow-x: auto;">
+                        <tbody>
+                            @foreach (var habit in HabitAppState!.Habits)
+                            {
+                                <tr>
+                                    <td>
+                                        <HabitItemPaper Habit="@habit" ApplicationUserId="@applicationUserId" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    }
 </MudStack>

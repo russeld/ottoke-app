@@ -1,0 +1,38 @@
+﻿@using Core.Habits.Enums
+<MudDialog DefaultFocus="DefaultFocus.FirstChild">
+    <TitleContent>
+        <h2>Edit Habit</h2>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Elevation="0" Class="pb-5">
+            <MudStack Spacing="4">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Name</MudText>
+                    <MudTextField @bind-Value="Habit.Name"
+                                  Immediate
+                                  Variant="Variant.Outlined"
+                                  Underline="false" />
+                </MudStack>
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Description</MudText>
+                    <MudTextField @bind-Value="Habit.Description" Variant="Variant.Outlined" />
+                </MudStack>
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle2">Frequency</MudText>
+                    <MudChipSet T="HabitFrequency" @bind-SelectedValue="Habit.Frequency" CheckMark SelectionMode="SelectionMode.SingleSelection">
+                        <MudChip Variant="Variant.Text" Color="Color.Default" Value="@HabitFrequency.Daily">@HabitFrequency.Daily</MudChip>
+                        <MudChip Color="Color.Default" Value="@HabitFrequency.Weekly">@HabitFrequency.Weekly</MudChip>
+                        <MudChip Color="Color.Default" Value="@HabitFrequency.Monthly">@HabitFrequency.Monthly</MudChip>
+                        <MudChip Color="Color.Default" Value="@HabitFrequency.Event">@HabitFrequency.Event</MudChip>
+                    </MudChipSet>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudStack Row="true" Spacing="5" Class="pa-5">
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="OnClickCancel">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickSave">Save Habit</MudButton>
+        </MudStack>
+    </DialogActions>
+</MudDialog>

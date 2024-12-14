@@ -4,4 +4,4 @@ using Core.Habits.Entities;
 
 namespace Application.Habits.Queries.GetHabits;
 
-public record GetHabitsQuery : IQuery<Result<Habit>>;
+public record GetHabitsQuery(string ApplicationUserId) : IQuery<Result<List<Habit>>>;
